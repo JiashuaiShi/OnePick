@@ -1,5 +1,5 @@
 #!/bin/bash
-# This script is used to decompress FASTQ files using fastqZipCpp.
+# This script is used to decompress FASTQZIP files using fastqZip.
 
 set -e
 set -u
@@ -13,10 +13,19 @@ OUTPUT_DIR="${FASTQZIP_DIR}/test/out_decompress/"
 REFERENCE_FASTA="${SHIJIASHUAI_BASE}/data/index/hg19/hg19.fasta"
 
 # 生成时间戳
-TimeStamp=$(date +%m%d%H%M%S)
+timestamp=$(date +%m%d%H%M%S)
 
 # 定义输入文件路径
-ZIP_FILE="${1:-/data1/test_data/fastq/GIAB_Data/WGS/pcr_free/MGISEQ_2000/HG001_NA12878/NA12878_1/MGISEQ2000_PCR-free_NA12878_1_V100003043_L01_1.fq}"
+ZIP_FILE="${1:-/workspace/shell/bench_test/FastZip/test/out_compress/out_1221063900.fastqzip}"
+
+# 定义-g参数
+G_OPTION="${2:--g}"
+
+# 检查-g参数的有效性
+if [[ "${G_OPTION}" != "-g" && -n "${G_OPTION}" ]]; then
+    echo "Error: Invalid -g option ${G_OPTION}."
+    exit 1
+fi
 
 # 检查输入文件是否存在
 if [ ! -f "${ZIP_FILE}" ]; then
@@ -31,11 +40,11 @@ if [ ! -d "${OUTPUT_DIR}" ]; then
 fi
 
 # 执行解压缩命令
-"${TIME_TOOL}" -o "${OUTPUT_DIR}/time_${TimeStamp}.log" -v \
+"${TIME_TOOL}" -o "${OUTPUT_DIR}/time_${timestamp}.log" -v \
  "${FASTQZIP_DIR}/fastqZip" decompress \
  -f "${ZIP_FILE}" \
  -r "${REFERENCE_FASTA}" \
  -t 24 \
  --output "${OUTPUT_DIR}" \
- -g \
- &> "${OUTPUT_DIR}/decompress_${TimeStamp}.log"
+ ${G_OPTION}
+ &> "${OUTPUT_DIR}/decompress_${timestamp}.log"
